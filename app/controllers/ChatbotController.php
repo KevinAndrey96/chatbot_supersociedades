@@ -22,7 +22,7 @@ class ChatbotController extends ControllerBase {
                     $_query = $this->removeAccents($dataRequest->query);
                     $result = $this->AnalyzeText(ControllerBase::ENDPOINT, ControllerBase::APPID, ControllerBase::ENDPOINTKEY, $_query);
                     $result = json_decode($result);
-
+                    
                     $intent = $result->topScoringIntent;
                     $date = $this->_dateTime->format('H:i:s');
                     $answer = "";
@@ -38,6 +38,7 @@ class ChatbotController extends ControllerBase {
                                 "bind" => array(1 => $entities,
                                                 2 => $date)
                             ));
+                            
 
                             if (isset($answer->id_greeting))
                                 $answer = $answer->description;
@@ -94,6 +95,22 @@ class ChatbotController extends ControllerBase {
                                 $answer = ControllerBase::ANSWER_FAILURE;
 
                             break;    
+                            
+                        case "Sociedades":
+
+                            $entities = isset($result->entities[0]->type) ? $result->entities[0]->type : null;
+                            $answer = Sociedades::findFirst(array(
+                                "conditions" => "type = ?1",
+                                "bind" => array(1 => $entities)
+                            ));
+                            
+
+                            if (isset($answer->id))
+                                $answer = $answer->description;
+                            else 
+                                $answer = ControllerBase::ANSWER_FAILURE;
+
+                            break;     
 
                         case "None":
                             $answer = ControllerBase::ANSWER_FAILURE;
