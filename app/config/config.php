@@ -5,11 +5,20 @@ return new \Phalcon\Config(array(
     'database' => array(
         'schema'   => 'public',
         'adapter'  => 'Postgresql',
-        'host'     => '127.0.0.1',
-        'username' => 'postgres',
-        'password' => '123456',
-        'dbname'   => 'chatbot',
+        'host'     => 'localhost',
+        'username' => 'supersociedades',
+        'password' => 'Shape2018@',
+        'dbname'   => 'supersoc_chatbot',
     ),
+
+    // 'database' => array(
+    //     'schema'   => 'public',
+    //     'adapter'  => 'Postgresql',
+    //     'host'     => 'localhost',
+    //     'username' => 'postgres',
+    //     'password' => '123456',
+    //     'dbname'   => 'supersoc_chatbot',
+    // ),
 
     'application' => array(
         'controllersDir' => __DIR__ . '/../../app/controllers/',
