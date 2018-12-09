@@ -143,7 +143,7 @@ class ChatbotController extends ControllerBase {
                                 
                                 $entities = isset($result->entities[0]->type) ? $result->entities[0]->type : null;
                                 $answer = Consult::findFirst(array(
-                                    "conditions" => "id_consult = ?1",
+                                    "conditions" => "type = ?1",
                                     "bind" => array(1 => $entities)
                                 ));
     
