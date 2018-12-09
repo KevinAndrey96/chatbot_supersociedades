@@ -3,6 +3,9 @@
 
 class ChatbotController extends ControllerBase {
 
+    /*
+    * Obtener respuesta a la pregunta
+    */
     public function getAnswerAction() {
 
         $dataRequest = $this->request->getJsonPost();
@@ -52,7 +55,7 @@ class ChatbotController extends ControllerBase {
                         $intent = $result->topScoringIntent;
                         $date = $this->_dateTime->format('H:i:s');
                         $answer = "";
-    
+
                         switch ($intent->intent) {
     
                             case "Greeting":
@@ -134,7 +137,22 @@ class ChatbotController extends ControllerBase {
                                     $answer = $answer->description;
                                 else 
                                     $answer = $this->findStaticQuestion($_query);
-                                break;     
+                                break;  
+
+                            case "Consult":
+                                
+                                $entities = isset($result->entities[0]->type) ? $result->entities[0]->type : null;
+                                $answer = Consult::findFirst(array(
+                                    "conditions" => "id_consult = ?1",
+                                    "bind" => array(1 => $entities)
+                                ));
+    
+                                
+                                if (isset($answer->id_consult))
+                                    $answer = $answer->description;
+                                else 
+                                    $answer = $this->findStaticQuestion($_query);
+                                break;       
     
                             case "None":
 
@@ -176,6 +194,9 @@ class ChatbotController extends ControllerBase {
         }
     }
     
+    /*
+    * Agregar usuario y generar solicitud de chat
+    */
     public function addUserAction() {
 
         $dataRequest = $this->request->getJsonPost();
@@ -260,7 +281,9 @@ class ChatbotController extends ControllerBase {
         }
     }
 
-
+    /*
+    * Historial conversacion
+    */
     public function historyAction() {
 
         $dataRequest = $this->request->getJsonPost();
@@ -300,7 +323,9 @@ class ChatbotController extends ControllerBase {
         }
     }
     
-
+    /*
+    * Respuesta api LUIS
+    */
     public function AnalyzeText($url, $app, $key, $query) {
 
         $headers = "Ocp-Apim-Subscription-Key: $key\r\n";
@@ -326,7 +351,9 @@ class ChatbotController extends ControllerBase {
         return $result;
     }
     
-    
+    /*
+    * Agregar pregunta estatica 
+    */
     public function addQuestion($data) {
         
         $res = (explode("/", $data));
@@ -341,7 +368,9 @@ class ChatbotController extends ControllerBase {
         }
     }
 
-
+    /*
+    * Quitar acentos
+    */
     public function removeAccents($cadena){
    
         $cadena = str_replace(
@@ -373,11 +402,14 @@ class ChatbotController extends ControllerBase {
         return $cadena;
     }
 
-
+    /*
+    * Busca la pregunta en la tabla de preguntas estaticas
+    */
     public function findStaticQuestion($query) {
 
         $question = new ExtraQuestions;
-        $result = ($question->findQuestion($query))->fetchAll();
+        $result = ($question->findQuestion($query));
+        $result = $result->fetchAll();
 
         if (count($result) > 0 ){
             return $result[0]['answer'];
