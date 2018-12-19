@@ -152,6 +152,21 @@ class ChatbotController extends ControllerBase {
                                     $answer = $answer->description;
                                 else 
                                     $answer = $this->findStaticQuestion($_query);
+                                break; 
+
+                            case "Concepts":
+                                
+                                $entities = isset($result->entities[0]->type) ? $result->entities[0]->type : null;
+                                $answer = Concepts::findFirst(array(
+                                    "conditions" => "type = ?1",
+                                    "bind" => array(1 => $entities)
+                                ));
+    
+                                
+                                if (isset($answer->id_concept))
+                                    $answer = $answer->description;
+                                else 
+                                    $answer = $this->findStaticQuestion($_query);
                                 break;       
     
                             case "None":
