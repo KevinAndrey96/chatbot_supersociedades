@@ -167,7 +167,37 @@ class ChatbotController extends ControllerBase {
                                     $answer = $answer->description;
                                 else 
                                     $answer = $this->findStaticQuestion($_query);
-                                break;       
+                                break;  
+
+                            case "AuxiliaryJustice":
+
+                                $entities = $result->entities; 
+
+                                $entities_1 = isset($result->entities[0]->type) ? $result->entities[0]->type : null;
+                                $entities_2 = isset($result->entities[1]->type) ? $result->entities[0]->type : null;
+                                
+                                $answer = AuxiliaryJustice::findFirst(array(
+                                    "conditions" => "type = ?1 and action = ?2",
+                                    "bind" => array(1 => $entities_1,
+                                                    2 => $entities_2)
+                                ));
+    
+                                if (isset($answer->id_auxiliary_justice)){
+                                    $answer = $answer->description;
+                                } else {
+                                    $answer = AuxiliaryJustice::findFirst(array(
+                                        "conditions" => "type = ?1 and action = ?2",
+                                        "bind" => array(1 => $entities_2,
+                                                        2 => $entities_1)
+                                    ));
+
+                                    if (isset($answer->id_auxiliary_justice))
+                                        $answer = $answer->description;
+                                    else
+                                        $answer = $this->findStaticQuestion($_query);
+                                } 
+                                    
+                                break;      
     
                             case "None":
 
