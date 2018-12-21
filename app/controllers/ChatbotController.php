@@ -72,7 +72,7 @@ class ChatbotController extends ControllerBase {
                                 if (isset($answer->id_greeting))
                                     $answer = $answer->description;
                                 else 
-                                    $answer = $this->findStaticQuestion($_query);
+                                    $answer = $this->findStaticQuestion($_query, $dataRequest->id_chat);
     
                                 break;
     
@@ -87,7 +87,7 @@ class ChatbotController extends ControllerBase {
                                 if (isset($answer->id_information))
                                     $answer = $answer->description;
                                 else 
-                                    $answer = $this->findStaticQuestion($_query);
+                                    $answer = $this->findStaticQuestion($_query, $dataRequest->id_chat);
     
                                 break;  
     
@@ -105,7 +105,7 @@ class ChatbotController extends ControllerBase {
                                     $pos = rand(0, $count-1);
                                     $answer = $answer[$pos]->description;
                                 } else {
-                                    $answer = $this->findStaticQuestion($_query);
+                                    $answer = $this->findStaticQuestion($_query, $dataRequest->id_chat);
                                 }
     
                                 break;    
@@ -121,7 +121,7 @@ class ChatbotController extends ControllerBase {
                                 if (isset($answer->id_proceso))
                                     $answer = $answer->description;
                                 else 
-                                    $answer = $this->findStaticQuestion($_query);
+                                    $answer = $this->findStaticQuestion($_query, $dataRequest->id_chat);
                                 break;    
                                 
                             case "Sociedades":
@@ -136,7 +136,7 @@ class ChatbotController extends ControllerBase {
                                 if (isset($answer->id))
                                     $answer = $answer->description;
                                 else 
-                                    $answer = $this->findStaticQuestion($_query);
+                                    $answer = $this->findStaticQuestion($_query, $dataRequest->id_chat);
                                 break;  
 
                             case "Consult":
@@ -151,7 +151,7 @@ class ChatbotController extends ControllerBase {
                                 if (isset($answer->id_consult))
                                     $answer = $answer->description;
                                 else 
-                                    $answer = $this->findStaticQuestion($_query);
+                                    $answer = $this->findStaticQuestion($_query, $dataRequest->id_chat);
                                 break; 
 
                             case "Concepts":
@@ -166,7 +166,7 @@ class ChatbotController extends ControllerBase {
                                 if (isset($answer->id_concept))
                                     $answer = $answer->description;
                                 else 
-                                    $answer = $this->findStaticQuestion($_query);
+                                    $answer = $this->findStaticQuestion($_query, $dataRequest->id_chat);
                                 break;  
 
                             case "AuxiliaryJustice":
@@ -174,7 +174,7 @@ class ChatbotController extends ControllerBase {
                                 $entities = $result->entities; 
 
                                 $entities_1 = isset($result->entities[0]->type) ? $result->entities[0]->type : null;
-                                $entities_2 = isset($result->entities[1]->type) ? $result->entities[0]->type : null;
+                                $entities_2 = isset($result->entities[1]->type) ? $result->entities[1]->type : null;
                                 
                                 $answer = AuxiliaryJustice::findFirst(array(
                                     "conditions" => "type = ?1 and action = ?2",
@@ -194,14 +194,14 @@ class ChatbotController extends ControllerBase {
                                     if (isset($answer->id_auxiliary_justice))
                                         $answer = $answer->description;
                                     else
-                                        $answer = $this->findStaticQuestion($_query);
+                                        $answer = $this->findStaticQuestion($_query, $dataRequest->id_chat);
                                 } 
                                     
                                 break;      
     
                             case "None":
 
-                                $answer = $this->findStaticQuestion($_query);
+                                $answer = $this->findStaticQuestion($_query, $dataRequest->id_chat);
                                 break;    
                         }
 
@@ -450,7 +450,7 @@ class ChatbotController extends ControllerBase {
     /*
     * Busca la pregunta en la tabla de preguntas estaticas
     */
-    public function findStaticQuestion($query) {
+    public function findStaticQuestion($query, $id_chat) {
 
         $question = new ExtraQuestions;
         $result = ($question->findQuestion($query));
@@ -459,8 +459,11 @@ class ChatbotController extends ControllerBase {
         if (count($result) > 0 ){
             return $result[0]['answer'];
         } else {
+            $not_found_questions = new NotfoundQuestions;
+            $not_found_questions = $query;
+            $not_found_questions = $id_chat;
+            $not_found_questions->save();
             return ControllerBase::ANSWER_FAILURE;
         }
     }
-
 }
