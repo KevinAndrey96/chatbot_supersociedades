@@ -5,7 +5,7 @@ use \Phalcon\Mvc\Model;
 /**
  * 
  */
-class User extends Model
+class UserChat extends Model
 {
 
     /**
