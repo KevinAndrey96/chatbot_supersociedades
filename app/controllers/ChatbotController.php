@@ -257,7 +257,7 @@ class ChatbotController extends ControllerBase {
 
             try {
                 
-                $user = User::findFirst(array(
+                $user = UserChat::findFirst(array(
                     "conditions" => "email = ?1",
                     "bind" => array(1 => $dataRequest->email)
                 ));
@@ -283,19 +283,19 @@ class ChatbotController extends ControllerBase {
                     ));
                     
                 } else {
-                    $usuario = new User;
+                    $usuario = new UserChat;
                     $usuario->name = $dataRequest->name;
                     $usuario->department = $dataRequest->department;
                     $usuario->phone = $dataRequest->phone;
                     $usuario->email = $dataRequest->email;
                     
                     if ($usuario->save()) {
-
+                      
                         $new_chat = new Request;
                         $new_chat->id_user = $usuario->id_user;
                         $new_chat->date = date("Y-m-d H:i:s");  
                         $new_chat->save();
-                        
+                        print_r($new_chat);die;
                         $data[] =  array(
                             "id_user" => $usuario->id_user,
                             "name" => $usuario->name,
@@ -334,16 +334,21 @@ class ChatbotController extends ControllerBase {
         $dataRequest = $this->request->getJsonPost();
 
         $fields = array(
-            "id_chat"
+            "email_user"
         );
 
         if ($this->_checkFields($dataRequest, $fields)) {
 
             try {
 
+                $historial_user = new History;
+                $result = ($historial_user->getHistoryByUser($dataRequest->email_user));
+              
+                $result = $result->fetchAll();
+
                 $history = History::find(array(
                     "conditions" => "id_chat = ?1",
-                    "bind" => array(1 => $dataRequest->id_chat)
+                    "bind" => array(1 => $result[0]['id_chat'])
                 ));
 
                 if (count($history) > 0) {
@@ -362,6 +367,44 @@ class ChatbotController extends ControllerBase {
                 }
                 
                 
+            } catch (Exception $e) {
+                $this->logError($e, $dataRequest);
+            }
+        }
+    }
+    
+    /*
+    *Listar preguntas no encontradas 
+    */
+    public function notFoundQuestionsAction() {
+
+        $dataRequest = $this->request->getJsonPost();
+
+        $fields = array(
+            "password"
+        );
+
+        if ($this->_checkFields($dataRequest, $fields)) {
+
+            try {
+
+                if (ControllerBase::PASSWORD == $dataRequest->password) {
+                    $data = NotFoundQuestions::find();
+
+                    $this->setJsonResponse(ControllerBase::SUCCESS, ControllerBase::SUCCESS_MESSAGE, array(
+                        "return" => true,
+                        "message" => "Preguntas no encontradas.",
+                        "data" => $data,
+                        "status" => ControllerBase::SUCCESS
+                    ));
+                } else {
+                    $this->setJsonResponse(ControllerBase::SUCCESS, ControllerBase::SUCCESS_MESSAGE, array(
+                        "return" => false,
+                        "message" => "Error de autenticacion.",
+                        "status" => ControllerBase::FAILED
+                    ));  
+                }
+        
             } catch (Exception $e) {
                 $this->logError($e, $dataRequest);
             }
@@ -459,9 +502,9 @@ class ChatbotController extends ControllerBase {
         if (count($result) > 0 ){
             return $result[0]['answer'];
         } else {
-            $not_found_questions = new NotfoundQuestions;
-            $not_found_questions = $query;
-            $not_found_questions = $id_chat;
+            $not_found_questions = new NotFoundQuestions;
+            $not_found_questions->question = $query;
+            $not_found_questions->id_chat = $id_chat;
             $not_found_questions->save();
             return ControllerBase::ANSWER_FAILURE;
         }
