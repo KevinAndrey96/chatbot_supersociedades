@@ -25,6 +25,12 @@ class NotFoundQuestions extends Model
      * @var String
      */
     public $id_chat;
+    
+    /**
+     *
+     * @var integer
+     */
+    public $count;
 
     /**
      * Initialize method for model.

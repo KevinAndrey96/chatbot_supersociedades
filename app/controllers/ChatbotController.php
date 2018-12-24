@@ -389,7 +389,10 @@ class ChatbotController extends ControllerBase {
             try {
 
                 if (ControllerBase::PASSWORD == $dataRequest->password) {
-                    $data = NotFoundQuestions::find();
+                    $data = NotFoundQuestions::find(array(
+                        "conditions" => "count >= ?1",
+                        "bind" => array(1 => 2)
+                    ));
 
                     $this->setJsonResponse(ControllerBase::SUCCESS, ControllerBase::SUCCESS_MESSAGE, array(
                         "return" => true,
@@ -508,9 +511,20 @@ class ChatbotController extends ControllerBase {
         if (count($result) > 0 ){
             return $result[0]['answer'];
         } else {
-            $not_found_questions = new NotFoundQuestions;
-            $not_found_questions->question = $query;
-            $not_found_questions->id_chat = $id_chat;
+            $not_found_questions = NotFoundQuestions::findFirst(array(
+                "conditions" => "question = ?1",
+                "bind" => array(1 => $query)
+            ));
+            
+            if (isset($not_found_questions->id)){
+                $not_found_questions->count = $not_found_questions->count+1; 
+            } else {
+                $not_found_questions = new NotFoundQuestions;
+                $not_found_questions->question = $query;
+                $not_found_questions->id_chat = $id_chat;
+                $not_found_questions->count = 1; 
+            }
+        
             $not_found_questions->save();
             return ControllerBase::ANSWER_FAILURE;
         }
