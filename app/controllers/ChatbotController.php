@@ -446,7 +446,7 @@ class ChatbotController extends ControllerBase {
         
         $res = (explode("/", $data));
         $question = new ExtraQuestions;
-        $question->question = $res[0];
+        $question->question = strtolower($res[0]);
         $question->answer = $res[1];
         
         if ($question->save()) {
@@ -486,6 +486,11 @@ class ChatbotController extends ControllerBase {
             array('ú', 'ù', 'ü', 'û', 'Ú', 'Ù', 'Û', 'Ü'),
             array('u', 'u', 'u', 'u', 'U', 'U', 'U', 'U'),
             $cadena );
+
+        $cadena = str_replace(
+            array('?', '¿'),
+            array('', ''),
+            $cadena );
     
         return $cadena;
     }
@@ -496,6 +501,7 @@ class ChatbotController extends ControllerBase {
     public function findStaticQuestion($query, $id_chat) {
 
         $question = new ExtraQuestions;
+        $query = strtolower($query);
         $result = ($question->findQuestion($query));
         $result = $result->fetchAll();
 
