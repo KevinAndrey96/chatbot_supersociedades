@@ -180,25 +180,31 @@ class ChatbotController extends ControllerBase {
 
                                 $auxiliary_justice = new AuxiliaryJustice();
 
-                                $auxiliary_justice->getAnswer($entities_1, $entities_2);
-    
-                                if (isset($answer[0])){
-                                    $answer = $answer[0]->description;
+                                $answer = $auxiliary_justice->getAnswer($entities_1, $entities_2);
+                                $answer = $answer->fetchAll();
+                    
+                                
+                                if (count($answer)>0){
+                                    $answer = $answer[0]['description'];
                                 } else {
-                                    $auxiliary_justice->getAnswer($entities_2, $entities_1);
-
-                                    if (isset($answer[0])){
-                                        $answer = $answer[0]->description;
+                                    $answer = $auxiliary_justice->getAnswer($entities_2, $entities_1);
+                                    $answer = $answer->fetchAll();
+                                        
+                                    if (count($answer)>0){
+                                        $answer = $answer[0]['description'];
                                     } else {
-                                        $auxiliary_justice->getAnswer($entities_1, $entities_3);
+                                        $answer = $auxiliary_justice->getAnswer($entities_1, $entities_3);
+                                        $answer = $answer->fetchAll();
+                                        
 
-                                        if (isset($answer[0])){
-                                            $answer = $answer[0]->description;
+                                        if (count($answer)>0){
+                                            $answer = $answer[0]['description'];
                                         } else {
-                                            $auxiliary_justice->getAnswer($entities_2, $entities_3);
+                                            $answer = $auxiliary_justice->getAnswer($entities_2, $entities_3);
+                                            $answer = $answer->fetchAll();
                                             
-                                            if (isset($answer[0]))
-                                                $answer = $answer[0]->description;
+                                            if (count($answer)>0)
+                                                $answer = $answer[0]['description'];
                                             else 
                                                 $answer = $this->findStaticQuestion($_query, $dataRequest->id_chat);
                                         }
@@ -206,7 +212,49 @@ class ChatbotController extends ControllerBase {
                                 } 
                                     
                                 break;      
-    
+                            
+                            case "Insolvencia":
+
+                                $entities = $result->entities; 
+
+                                $entities_1 = isset($result->entities[0]->type) ? $result->entities[0]->type : null;
+                                $entities_2 = isset($result->entities[1]->type) ? $result->entities[1]->type : null;
+                                $entities_3 = isset($result->entities[2]->type) ? $result->entities[2]->type : null;
+
+                                $insolvencia = new Insolvencia();
+
+                                $answer = $insolvencia->getAnswer($entities_1, $entities_2);
+                                $answer = $answer->fetchAll();
+                    
+                                
+                                if (count($answer)>0){
+                                    $answer = $answer[0]['description'];
+                                } else {
+                                    $answer = $insolvencia->getAnswer($entities_2, $entities_1);
+                                    $answer = $answer->fetchAll();
+                                        
+                                    if (count($answer)>0){
+                                        $answer = $answer[0]['description'];
+                                    } else {
+                                        $answer = $insolvencia->getAnswer($entities_1, $entities_3);
+                                        $answer = $answer->fetchAll();
+
+                                        if (count($answer)>0){
+                                            $answer = $answer[0]['description'];
+                                        } else {
+                                            $answer = $insolvencia->getAnswer($entities_2, $entities_3);
+                                            $answer = $answer->fetchAll();
+                                            
+                                            if (count($answer)>0)
+                                                $answer = $answer[0]['description'];
+                                            else 
+                                                $answer = $this->findStaticQuestion($_query, $dataRequest->id_chat);
+                                        }
+                                    }
+                                } 
+                                    
+                                break;
+
                             case "None":
 
                                 $answer = $this->findStaticQuestion($_query, $dataRequest->id_chat);
