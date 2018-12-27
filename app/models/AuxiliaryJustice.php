@@ -41,4 +41,16 @@ class AuxiliaryJustice extends Model
         $this->setSchema("public");
     }
 
+    public function getAnswer($entity_1, $entity_2)
+    {
+        $sql = " SELECT * 
+                 FROM auxiliary_justice aj
+                 WHERE aj.type = '$entity_1' and aj.action = '$entity_2'";
+
+        $prepare = $this->getDi()->getShared("db")->prepare($sql);
+        $prepare->execute();
+
+        return $prepare;
+    }
+
 }

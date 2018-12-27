@@ -55,6 +55,7 @@ class ChatbotController extends ControllerBase {
                         $intent = $result->topScoringIntent;
                         $date = $this->_dateTime->format('H:i:s');
                         $answer = "";
+                        //print_r($result);die;
 
                         switch ($intent->intent) {
     
@@ -175,26 +176,33 @@ class ChatbotController extends ControllerBase {
 
                                 $entities_1 = isset($result->entities[0]->type) ? $result->entities[0]->type : null;
                                 $entities_2 = isset($result->entities[1]->type) ? $result->entities[1]->type : null;
-                                
-                                $answer = AuxiliaryJustice::findFirst(array(
-                                    "conditions" => "type = ?1 and action = ?2",
-                                    "bind" => array(1 => $entities_1,
-                                                    2 => $entities_2)
-                                ));
-    
-                                if (isset($answer->id_auxiliary_justice)){
-                                    $answer = $answer->description;
-                                } else {
-                                    $answer = AuxiliaryJustice::findFirst(array(
-                                        "conditions" => "type = ?1 and action = ?2",
-                                        "bind" => array(1 => $entities_2,
-                                                        2 => $entities_1)
-                                    ));
+                                $entities_3 = isset($result->entities[2]->type) ? $result->entities[2]->type : null;
 
-                                    if (isset($answer->id_auxiliary_justice))
-                                        $answer = $answer->description;
-                                    else
-                                        $answer = $this->findStaticQuestion($_query, $dataRequest->id_chat);
+                                $auxiliary_justice = new AuxiliaryJustice();
+
+                                $auxiliary_justice->getAnswer($entities_1, $entities_2);
+    
+                                if (isset($answer[0])){
+                                    $answer = $answer[0]->description;
+                                } else {
+                                    $auxiliary_justice->getAnswer($entities_2, $entities_1);
+
+                                    if (isset($answer[0])){
+                                        $answer = $answer[0]->description;
+                                    } else {
+                                        $auxiliary_justice->getAnswer($entities_1, $entities_3);
+
+                                        if (isset($answer[0])){
+                                            $answer = $answer[0]->description;
+                                        } else {
+                                            $auxiliary_justice->getAnswer($entities_2, $entities_3);
+                                            
+                                            if (isset($answer[0]))
+                                                $answer = $answer[0]->description;
+                                            else 
+                                                $answer = $this->findStaticQuestion($_query, $dataRequest->id_chat);
+                                        }
+                                    }
                                 } 
                                     
                                 break;      
