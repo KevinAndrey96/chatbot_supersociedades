@@ -49,7 +49,7 @@ class ChatbotController extends ControllerBase {
                         
                     } else {
                         
-                        $result = $this->AnalyzeText(ControllerBase::ENDPOINT, ControllerBase::APPID, ControllerBase::ENDPOINTKEY, $_query);
+                        $result = $this->AnalyzeText(ControllerBase::ENDPOINT, ControllerBase::APPID_1, ControllerBase::ENDPOINTKEY, $_query);
                         $result = json_decode($result);
                         
                         $intent = $result->topScoringIntent;
@@ -213,51 +213,13 @@ class ChatbotController extends ControllerBase {
                                     
                                 break;      
                             
-                            case "Insolvencia":
-
-                                $entities = $result->entities; 
-
-                                $entities_1 = isset($result->entities[0]->type) ? $result->entities[0]->type : null;
-                                $entities_2 = isset($result->entities[1]->type) ? $result->entities[1]->type : null;
-                                $entities_3 = isset($result->entities[2]->type) ? $result->entities[2]->type : null;
-
-                                $insolvencia = new Insolvencia();
-
-                                $answer = $insolvencia->getAnswer($entities_1, $entities_2);
-                                $answer = $answer->fetchAll();
-                    
-                                
-                                if (count($answer)>0){
-                                    $answer = $answer[0]['description'];
-                                } else {
-                                    $answer = $insolvencia->getAnswer($entities_2, $entities_1);
-                                    $answer = $answer->fetchAll();
-                                        
-                                    if (count($answer)>0){
-                                        $answer = $answer[0]['description'];
-                                    } else {
-                                        $answer = $insolvencia->getAnswer($entities_1, $entities_3);
-                                        $answer = $answer->fetchAll();
-
-                                        if (count($answer)>0){
-                                            $answer = $answer[0]['description'];
-                                        } else {
-                                            $answer = $insolvencia->getAnswer($entities_2, $entities_3);
-                                            $answer = $answer->fetchAll();
-                                            
-                                            if (count($answer)>0)
-                                                $answer = $answer[0]['description'];
-                                            else 
-                                                $answer = $this->findStaticQuestion($_query, $dataRequest->id_chat);
-                                        }
-                                    }
-                                } 
-                                    
-                                break;
-
                             case "None":
+                                $answer = $this->findAnswer($_query);
 
-                                $answer = $this->findStaticQuestion($_query, $dataRequest->id_chat);
+                                if ($answer == false) {
+                                    $answer = $this->findStaticQuestion($_query, $dataRequest->id_chat);
+                                } 
+
                                 break;    
                         }
 
@@ -583,6 +545,55 @@ class ChatbotController extends ControllerBase {
         
             $not_found_questions->save();
             return ControllerBase::ANSWER_FAILURE;
+        }
+    }
+
+    /*
+    * Consultar pregunta en SuperSociedades1
+    */
+    public function findAnswer($query){
+
+        $result = $this->AnalyzeText(ControllerBase::ENDPOINT, ControllerBase::APPID_1, ControllerBase::ENDPOINTKEY, $query);
+        $result = json_decode($result);
+        $intent = $result->topScoringIntent;
+
+        if ($intent == 'Insolvencia') {
+
+            $entities = $result->entities; 
+
+            $entities_1 = isset($result->entities[0]->type) ? $result->entities[0]->type : null;
+            $entities_2 = isset($result->entities[1]->type) ? $result->entities[1]->type : null;
+            $entities_3 = isset($result->entities[2]->type) ? $result->entities[2]->type : null;
+
+            $insolvencia = new Insolvencia();
+            $answer = $insolvencia->getAnswer($entities_1, $entities_2);
+            $answer = $answer->fetchAll();
+            
+            if (count($answer)>0){
+                return $answer = $answer[0]['description'];
+            } else {
+                $answer = $insolvencia->getAnswer($entities_2, $entities_1);
+                $answer = $answer->fetchAll();
+                    
+                if (count($answer)>0){
+                    return $answer = $answer[0]['description'];
+                } else {
+                    $answer = $insolvencia->getAnswer($entities_1, $entities_3);
+                    $answer = $answer->fetchAll();
+
+                    if (count($answer)>0){
+                        return $answer = $answer[0]['description'];
+                    } else {
+                        $answer = $insolvencia->getAnswer($entities_2, $entities_3);
+                        $answer = $answer->fetchAll();
+                        
+                        if (count($answer)>0)
+                            return $answer = $answer[0]['description'];
+                        else 
+                            return false;
+                    }
+                }
+            } 
         }
     }
 }

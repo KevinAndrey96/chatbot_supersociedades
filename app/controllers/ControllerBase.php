@@ -18,8 +18,10 @@ class ControllerBase extends Controller {
     const FAILED = 409;
     const FAILED_MESSAGE = "FAILED OPERATION";
     const SUCCESS_MESSAGE = "SUCCESS OPERATION";
-    const APPID = "32c86169-3c1d-4e16-914b-d09a22635ddd";
-    const ENDPOINTKEY = "d480de5181054b398561cfcfedac147a";
+    const APPID_1 = "32c86169-3c1d-4e16-914b-d09a22635ddd"; //SuperSociedades
+    const APPID_2 = "91141c53-7b96-443b-90e9-7f51dc2cfeaa"; //SuperSociedades1
+    const ENDPOINTKEY_1 = "d480de5181054b398561cfcfedac147a";
+    //const ENDPOINTKEY_2 = "d480de5181054b398561cfcfedac147a"; //SuperSociedades1
     const ENDPOINT = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/";
     const TERM = "turn on the left light";
     const PASSWORD = "supersociedades*";
